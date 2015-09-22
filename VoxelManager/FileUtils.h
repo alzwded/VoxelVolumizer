@@ -66,7 +66,7 @@ typedef struct {
 } FileHandleImpl_t;
 typedef LPVOID Void_p_t;
 typedef SIZE_T Size_t;
-typedef uint64_t Offset_t; // QWORD
+typedef int64_t Offset_t; // QWORD
 typedef LPTSTR StringType_t;
 // ==========================================================
 // GCC / Linux specific defines
