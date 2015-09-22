@@ -224,6 +224,10 @@ FileHandle_t FU_OpenFile(StringType_t fname, FileMode_t mode)
             // truncate file to 4MB
             SetFilePointer(hFile, 4ul * 1024ul * 1024ul, NULL, FILE_BEGIN);
             SetEndOfFile(ret.fh.hFile);
+            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+            uint32_t buf = 0;
+            WriteFile(hFile, &buf, sizeof(uint32_t), NULL, NULL);
+            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
         }
     }
 
@@ -301,7 +305,7 @@ void FU_ResizeFile(FileHandle_t fh, Offset_t offset)
     CloseHandle(*fh.fh.hMapping);
 
     // 2. truncate file
-    SetFilePointer(hFile, offset, NULL, FILE_BEGIN);
+    SetFilePointer(fh.fh.hFile, offset, NULL, FILE_BEGIN);
     SetEndOfFile(ret.fh.hFile);
 
     // 3. recreate all mappings
