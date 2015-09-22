@@ -271,6 +271,11 @@ Mmapped_t FU_MapViewOfFile(FileHandle_t fh, Size_t length, Offset_t offset)
 
 void FU_UnmapViewOfFile(Mmapped_t ptr)
 {
+    if(mapping == MAPPING_NULL_PTR)
+    {
+        ErrorExit("NULL ptr");
+    }
+
     BOOL hr = UnmapViewOfFile(ptr->base);
     if(!hr) {
         ErrorExit(GetLastErrorString());
