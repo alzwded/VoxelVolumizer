@@ -219,15 +219,16 @@ FileHandle_t FU_OpenFile(StringType_t fname, FileMode_t mode)
     }
     if(fileSizeLow == 0 && fileSizeHigh == 0) {
         if(mode == FU_READ) {
+            CloseHandle(hFile);
             ErrorExit("Specified file has 0 length");
         } else {
             // truncate file to 4MB
-            SetFilePointer(hFile, 4ul * 1024ul * 1024ul, NULL, FILE_BEGIN);
+            SetFilePointer(ret.fh.hFile, 4ul * 1024ul * 1024ul, NULL, FILE_BEGIN);
             SetEndOfFile(ret.fh.hFile);
-            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+            SetFilePointer(ret.fh.hFile, 0, NULL, FILE_BEGIN);
             uint32_t buf = 0;
-            WriteFile(hFile, &buf, sizeof(uint32_t), NULL, NULL);
-            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+            WriteFile(ret.fh.hFile, &buf, sizeof(uint32_t), NULL, NULL);
+            SetFilePointer(ret.fh.hFile, 0, NULL, FILE_BEGIN);
         }
     }
 
