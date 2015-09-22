@@ -38,29 +38,29 @@ along with VoxelVolumizer.  If not, see <http://www.gnu.org/licenses/>.
 // need to be adjusted (i.e. deleted and recreated) so we return
 // a pointer to the client code, and keep the real data here
 // so that it can be adjusted
-static TAILQ_HEAD(FU_MmappedList_t, FU_MmappedEntry_t) FU_mmappedList
-        = TAILQ_HEAD_INITIALIZER(FU_mmappedList);
+static STAILQ_HEAD(FU_MmappedList_t, FU_MmappedEntry_t) FU_mmappedList
+        = STAILQ_HEAD_INITIALIZER(FU_mmappedList);
 struct FU_MmappedEntry_t {
     MmappedPrivate_t value;
-    TAILQ_ENTRY(FU_MmappedEntry_t) entries;
+    STAILQ_ENTRY(FU_MmappedEntry_t) entries;
 };
 static _Bool initialized = false;
 
 static void uninitializeList(void)
 {
-     struct FU_MmappedEntry_t* n1 = TAILQ_FIRST(&FU_mmappedList), *n2;
+     struct FU_MmappedEntry_t* n1 = STAILQ_FIRST(&FU_mmappedList), *n2;
      while (n1 != NULL) {
-         n2 = TAILQ_NEXT(n1, entries);
+         n2 = STAILQ_NEXT(n1, entries);
          free(n1);
          n1 = n2;
      }
-     TAILQ_INIT(&FU_mmappedList);
+     STAILQ_INIT(&FU_mmappedList);
 }
 
 static void initializeList(void)
 {
     if(!initialized) {
-        TAILQ_INIT(&FU_mmappedList);
+        STAILQ_INIT(&FU_mmappedList);
         atexit(&uninitializeList);
         initialized = true;
     }
@@ -204,7 +204,7 @@ Mmapped_t FU_MapViewOfFile(FileHandle_t fh, Size_t length, Offset_t offset)
     createView(entry);
 
     // add entry to the list
-    TAILQ_INSERT_TAIL(&FU_mmappedList, entry, entries);
+    STAILQ_INSERT_TAIL(&FU_mmappedList, entry, entries);
 
     // return the pointer to the MmappedPriv_t entry;
     // we will juggle some pointers around later to retrieve the entry
@@ -231,7 +231,7 @@ void FU_UnmapViewOfFile(Mmapped_t mapping)
     }
 
     // remove the entry
-    TAILQ_REMOVE(&FU_mmappedList, entry, entries);
+    STAILQ_REMOVE(&FU_mmappedList, entry, entries);
     free(entry);
 
     // check for munmap errors
@@ -249,7 +249,7 @@ void FU_ResizeFile(FileHandle_t fh, Offset_t newSize)
     }
     // 1. close all mappings for the current file
     struct FU_MmappedEntry_t* np;
-    TAILQ_FOREACH(np, &FU_mmappedList, FU_tailhead, entries) {
+    STAILQ_FOREACH(np, &FU_mmappedList, entries) {
         // do nothing if mapping was effed during a resize operation
         int hr = 0;
         if(np->value.base) hr = munmap(np->value.base);
@@ -262,7 +262,7 @@ void FU_ResizeFile(FileHandle_t fh, Offset_t newSize)
     ftruncate(fh.fh, newSize);
 
     // 3. recreate all mappings
-    TAILQ_FOREACH(np, &FU_mmappedList, FU_tailhead, entries) {
+    STAILQ_FOREACH(np, &FU_mmappedList, entries) {
         if(np->value.offset + np->value.length <= newSize) {
             createView(np);
         } else {
