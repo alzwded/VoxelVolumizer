@@ -280,6 +280,7 @@ void FU_UnmapViewOfFile(Mmapped_t ptr)
                 GetMMappedList().begin(),
                 GetMMappedList().end(),
                 ptr));
+    delete ptr;
 }
 
 void FU_ResizeFile(FileHandle_t fh, Offset_t offset)
