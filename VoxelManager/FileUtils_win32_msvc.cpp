@@ -219,7 +219,7 @@ FileHandle_t FU_OpenFile(StringType_t fname, FileMode_t mode)
     }
     if(fileSizeLow == 0 && fileSizeHigh == 0) {
         if(mode == FU_READ) {
-            CloseHandle(hFile);
+            CloseHandle(ret.fh.hFile);
             ErrorExit("Specified file has 0 length");
         } else {
             // truncate file to 4MB
