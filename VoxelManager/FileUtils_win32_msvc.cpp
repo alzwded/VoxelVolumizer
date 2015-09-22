@@ -239,7 +239,7 @@ FileHandle_t FU_OpenFile(StringType_t fname, FileMode_t mode)
 void FU_CloseFile(FileHandle_t fh)
 {
     // 1. Close file mapping
-    BOOL hr = CloseHandle(fh.fh.hMapping);
+    BOOL hr = CloseHandle(*fh.fh.hMapping);
     delete fh.fh.hMapping;
     if(!hr) {
         ErrorExit(GetLastErrorString());
