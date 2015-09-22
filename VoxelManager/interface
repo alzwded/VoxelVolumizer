@@ -1,0 +1,19 @@
+VoxelFileManager
+\\ the file manager is internal to the VoxelManager
+! ctor(int N, FILE*, int offset)
+  creates a new file head if not available
+  if N != N_from_file, a new file head is created
+! ctor(FILE*, int offset)
+  opens an existing file, reading N from it and initializing
+  linked VoxelFileManagers
++ GetLinked(): FileVoxelManager*
++ AddLinked(int N): FileVoxelManager*
++ HasPlane(int pId): bool
++ GetVoxel(int pId, int idx): Voxel
++ SetVoxel(int pId, int idx, Voxel)
+
+VoxelManager
+xxx ! ctor(VoxelFileManager* fileHead)
+! ctor(int preferred_N, FILE*, bool forceWipe)
++ SetVoxel(int pId, int i, int j, bool filled)
++ GetVoxelFill(int pId, int i, int j): bool

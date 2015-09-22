@@ -1,0 +1,86 @@
+// ========================================================
+// preliminary
+// ========================================================
+
+file ::= index element_list ;
+
+index ::= index element_index | index ;
+
+// index is 2N in length
+
+index ::= INT<plane_id> INT<address> ; 
+
+element_list ::= element_list element | element | index ;
+
+// element is 2N in length
+
+element ::= voxel_list ;
+
+voxel_list ::= voxel_list voxel | voxel | "0" ;
+
+// voxel_list is 2N in length ;
+
+voxel ::= VOXEL_INT ;
+
+VOXEL_INT ::= struct {
+                  int x : 13;
+                  int y : 13;
+                  int reserved : 2;
+                  int neighbours : 4;
+              } ;
+
+
+
+Voxel neighbour == true means that voxels are filled in that direction until the corresponding Voxel_1 neighbour == complement(Voxel neighbour) on any given direction
+actually, only 4 neighbour bits are used
+
+
+// ========================================================
+// refined
+// ========================================================
+
+address == 0 means empty/null
+voxel == 0xFFFFFFFF means empty/null
+block size = index_block.N * 32bit
+page size = 
+
+file = index_block element_block{index_block.N/2-2}
+
+index_block = N<INT> next_index_ref plane_ref * (N/2-1)
+
+next_index_ref = address<INT>
+
+plane_ref = plane_id<INT> address<INT>
+
+element_block = voxel{2*N}
+
+
+
+example:
+//A (d)  N      pNext  id addr id addr id addr
+  0      8      1       0 1     1 2    -1 0  
+//A (d)  V0  V1  V2  V3  V4 V5 V6 V6  
+ 32      V00 V01 V02 V03 -1 -1 -1 -1
+ 64      V10 V11 V12 -1  -1 -1 -1 -1
+ 96      -1  -1  -1  -1  -1 -1 -1 -1
+//A (d)  N      pNext  id addr
+128      4      0       3 P3
+//A (d)  V0  V1  V2  V3
+144      V30 V31 V32 V33
+
+now in hex
+A0 00000008 00000001 00000000 00000001 00000001 00000002 FFFFFFFF 00000000
+A1 00000001 00080008 ???????? ???????? FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
+A2 00000001 00080008 ???????? ???????? FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
+A3 FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
+A4 00000004 00000000 00000003 00000001
+A5 ???????? ???????? ???????? ????????
+EOF
+
+A0 = 0x00
+A1 = 0x20
+A2 = 0x40
+A3 = 0x60
+A4 = 0x80
+A5 = 0x90
+EOF = 0xA0
