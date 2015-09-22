@@ -38,9 +38,8 @@ along with VoxelVolumizer.  If not, see <http://www.gnu.org/licenses/>.
 // need to be adjusted (i.e. deleted and recreated) so we return
 // a pointer to the client code, and keep the real data here
 // so that it can be adjusted
-static TAILQ_HEAD(FU_tailhead, FU_MmappedEntry_t) FU_mmappedList
+static TAILQ_HEAD(FU_MmappedList_t, FU_MmappedEntry_t) FU_mmappedList
         = TAILQ_HEAD_INITIALIZER(FU_mmappedList);
-struct FU_tailhead* FU_pMmappedList;
 struct FU_MmappedEntry_t {
     MmappedPrivate_t value;
     TAILQ_ENTRY(FU_MmappedEntry_t) entries;
@@ -55,6 +54,7 @@ static void uninitializeList(void)
          free(n1);
          n1 = n2;
      }
+     TAILQ_INIT(&FU_mmappedList);
 }
 
 static void initializeList(void)
